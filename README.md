@@ -46,13 +46,11 @@ The goal of this project is to build a small dashboard that provides insights in
 
 6. **Obtain NewsAPI Key**:
    - Sign up for an API key at newsapi.org and update your api-key in the environment
-   ```bash
-    export NEWS_API_KEY='your_api_key'
+   ```export NEWS_API_KEY='your_api_key'```
 
 ## Running the Script
     - Execute the script to input a city name and display the top 5 news 
-    ```bash
-    python3 src/fetch_news_topic.py     
+    ```python3 src/fetch_news_topic.py```     
 
 ## File Structure
     - data/: This directory is used to store any data files or cached results if needed.  
