@@ -2,7 +2,7 @@ import praw
 import json
 from datetime import datetime, timedelta
 import os
-from openai import OpenAI
+import requests
 
 def configure_reddit_api():
     client_id = os.getenv('REDDIT_CLIENT_ID')
@@ -40,35 +40,49 @@ def configure_reddit_api():
 #     return ' '.join(keywords)
 
 
-openai_api_key = os.getenv('OPENAI_API_KEY')
-if not openai_api_key:
-    raise EnvironmentError("Missing required environment variable: OPENAI_API_KEY")
-
-client = OpenAI(
-    api_key=openai_api_key
-)
-
-
-def generate_search_prompt(topic):
+def generate_search_prompt(topic, model="mistralai/mistral-7b-instruct:free"):
     prompt = f"""
 Generate a JSON object with a single field named "query". The value of this field should be a concise and effective search query for the topic '{topic}' to use on Reddit. The query should not include any additional explanations, extra quotes, or other text—just the query itself.
 """
 
-    response = client.chat.completions.create(
-    messages=[
-        {
-            "role": "user",
-            "content": prompt,
-        }
-    ],
-    model="gpt-3.5-turbo",
-)   
-    search_prompt = response.choices[0].message.content
-    try:
-        search_prompt_json = json.loads(search_prompt)
-        return search_prompt_json['query']
-    except (KeyError, json.JSONDecodeError):
-        raise RuntimeError("Error processing the response: invalid JSON or missing 'query' field.")
+    openrouter_api_key = os.getenv('OPENROUTER_API_KEY')
+    if not openrouter_api_key:
+        raise EnvironmentError("Missing required environment variable: OPENROUTER_API_KEY")
+
+    headers = {
+        "Authorization": f"Bearer {openrouter_api_key}",
+    }
+
+    data = {
+        "model": model,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "top_p": 1,
+        "temperature": 1,
+        "frequency_penalty": 0,
+        "presence_penalty": 0,
+        "repetition_penalty": 1,
+        "top_k": 0,
+    }
+
+    response = requests.post(
+        url="https://openrouter.ai/api/v1/chat/completions",
+        headers=headers,
+        data=json.dumps(data)
+    )
+
+    if response.status_code == 200:
+        result = response.json()
+        print(result)
+        search_prompt = result['choices'][0]['message']['content'].strip()
+        try:
+            search_prompt_json = json.loads(search_prompt)
+            return search_prompt_json['query']
+        except (KeyError, json.JSONDecodeError):
+            raise RuntimeError("Error processing the response: invalid JSON or missing 'query' field.")
+    else:
+        raise RuntimeError(f"API call failed with status code {response.status_code}: {response.text}")
 
 
 def fetch_comments_for_topic(topic, reddit, subreddits=['all'], limit=5, max_age_days=45):
@@ -79,7 +93,7 @@ def fetch_comments_for_topic(topic, reddit, subreddits=['all'], limit=5, max_age
     for subreddit_name in subreddits:
         subreddit = reddit.subreddit(subreddit_name)
 
-        #  openai to get search query
+        #  opernrouter to get search query
         search_query = generate_search_prompt(topic)  
 
         reddit_search = subreddit.search(search_query, sort='Relevance', limit=limit)
@@ -124,7 +138,7 @@ def main():
     
     for topic in topics:
         comments = fetch_comments_for_topic(topic, reddit)
-        save_comments_to_file(comments, f'data/{topic.replace(" ", "_")}_comments.csv')
+        save_comments_to_file(comments, f'data/reddit/{topic.replace(" ", "_")}_comments.csv')
         print(f"Saved comments for topic '{topic}' to data/{topic.replace(' ', '_')}_comments.csv")
 
 if __name__ == '__main__':
