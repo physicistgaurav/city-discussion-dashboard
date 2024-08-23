@@ -40,9 +40,10 @@ def configure_reddit_api():
 #     return ' '.join(keywords)
 
 
-def generate_search_prompt(topic, model="mistralai/mistral-7b-instruct:free"):
+def generate_search_prompt(topic, model="meta-llama/llama-3-8b-instruct:free"):
     prompt = f"""
-Generate a JSON object with a single field named "query". The value of this field should be a concise and effective search query for the topic '{topic}' to use on Reddit. The query should not include any additional explanations, extra quotes, or other text—just the query itself.
+Please generate a JSON object with a single field named "query". The value of this field should be a concise and effective search query for the topic '{topic}' to use on Reddit. Return only the JSON object without any additional text, explanations, or formatting. The output should look exactly like this: 
+{{ "query": "your search query here" }}
 """
 
     openrouter_api_key = os.getenv('OPENROUTER_API_KEY')
@@ -51,6 +52,7 @@ Generate a JSON object with a single field named "query". The value of this fiel
 
     headers = {
         "Authorization": f"Bearer {openrouter_api_key}",
+        "Content-Type": "application/json"
     }
 
     data = {
@@ -59,7 +61,7 @@ Generate a JSON object with a single field named "query". The value of this fiel
             {"role": "user", "content": prompt}
         ],
         "top_p": 1,
-        "temperature": 1,
+        "temperature": 0,
         "frequency_penalty": 0,
         "presence_penalty": 0,
         "repetition_penalty": 1,
@@ -74,9 +76,9 @@ Generate a JSON object with a single field named "query". The value of this fiel
 
     if response.status_code == 200:
         result = response.json()
-        print(result)
         search_prompt = result['choices'][0]['message']['content'].strip()
         try:
+            # Attempt to parse the JSON response directly
             search_prompt_json = json.loads(search_prompt)
             return search_prompt_json['query']
         except (KeyError, json.JSONDecodeError):
@@ -99,7 +101,7 @@ def fetch_comments_for_topic(topic, subreddits=['all'], limit=5, max_age_days=45
         #  opernrouter to get search query
         search_query = generate_search_prompt(topic)  
 
-        reddit_search = subreddit.search(search_query, sort='Relevance', limit=limit)
+        reddit_search = subreddit.search(search_query, sort='hot', limit=limit)
         for submission in reddit_search:
             post_title = submission.title
             post_id = submission.id
@@ -116,6 +118,7 @@ def fetch_comments_for_topic(topic, subreddits=['all'], limit=5, max_age_days=45
             
             for comment in submission.comments.list()[:5]:
                 comments_data.append({
+                    'newsTopic':topic,
                     'Subreddit': f"r/{submission.subreddit}",
                     'PostTitle': post_title,
                     'CommentBody': comment.body,
