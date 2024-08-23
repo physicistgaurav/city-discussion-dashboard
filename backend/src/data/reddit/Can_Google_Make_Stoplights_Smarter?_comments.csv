@@ -1,0 +1,52 @@
+[
+    {
+        "newsTopic": "Can Google Make Stoplights Smarter?",
+        "Subreddit": "r/PPC",
+        "PostTitle": "Is Google (Ads) Smart Bidding based on Bayesian learning?",
+        "CommentBody": "Yes, Bayesian modeling is part of the equation.  \n\nLast week, Google published a nice scientific overview article:  \n \"Auto-bidding and Auctions in Online Advertising: A Survey\" \n\nlink: https://arxiv.org/pdf/2408.07685",
+        "Author": "NilsRooijmans",
+        "Score": 4,
+        "PostAge": 0,
+        "CommentAge": 0
+    },
+    {
+        "newsTopic": "Can Google Make Stoplights Smarter?",
+        "Subreddit": "r/PPC",
+        "PostTitle": "Is Google (Ads) Smart Bidding based on Bayesian learning?",
+        "CommentBody": "Looks like it is. I knew it used multi-armed bandit testing for deciding on winning ads, but this is old info.\n\n>  \nWhen you have little to no conversion data available, Smart Bidding can still use query-level data beyond your bid strategy to build more accurate initial conversion rate models. This helps it make more informed bidding decisions from the start. **It then uses Bayesian learning** to continuously improve these models as it accrues conversion rate data at more granular levels (e.g. for a search query mapped to specific ad copy or landing pages).\n\n[https://support.google.com/google-ads/answer/10970825?hl=en](https://support.google.com/google-ads/answer/10970825?hl=en)",
+        "Author": "zenith66",
+        "Score": 3,
+        "PostAge": 0,
+        "CommentAge": 0
+    },
+    {
+        "newsTopic": "Can Google Make Stoplights Smarter?",
+        "Subreddit": "r/PPC",
+        "PostTitle": "Is Google (Ads) Smart Bidding based on Bayesian learning?",
+        "CommentBody": "Dude thanks, that\u2019s super useful. Will dig deeper into this paper. I love when you have a scientific base to proof what you\u2019re saying is actually right ;)",
+        "Author": "ppc0r",
+        "Score": 2,
+        "PostAge": 0,
+        "CommentAge": 0
+    },
+    {
+        "newsTopic": "Can Google Make Stoplights Smarter?",
+        "Subreddit": "r/PPC",
+        "PostTitle": "Is Google (Ads) Smart Bidding based on Bayesian learning?",
+        "CommentBody": "Completely over read that, thanks for that! So it is, interesting!",
+        "Author": "ppc0r",
+        "Score": 2,
+        "PostAge": 0,
+        "CommentAge": 0
+    },
+    {
+        "newsTopic": "Can Google Make Stoplights Smarter?",
+        "Subreddit": "r/FuckGoogle",
+        "PostTitle": "Google not so smart",
+        "CommentBody": "When the fuck will they shut up about AI",
+        "Author": "Aggressive-Brick1024",
+        "Score": 1,
+        "PostAge": 4,
+        "CommentAge": 3
+    }
+]
