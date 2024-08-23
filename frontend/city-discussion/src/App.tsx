@@ -6,6 +6,7 @@ function App() {
   const [selectedNews, setSelectedNews] = useState("");
   const [loadingHeadline, setLoadingHeadline] = useState<boolean>(false);
   const [summaryStatus, setSummaryStatus] = useState<boolean>(false);
+  const [inputErrorMsg, setInputErrorMsg] = useState<string>("");
 
   interface RedditComment {
     Subreddit: string;
@@ -48,7 +49,6 @@ function App() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("data comm", data);
         setRedditList(data.comments);
         setSummaryResult({
           summary: data.summary,
@@ -80,6 +80,11 @@ function App() {
             if (data.top_news.length > 0) {
               setSelectedNews(data.top_news[0]);
             }
+            if (data.top_news.length == 0) {
+              setInputErrorMsg(
+                `No headlines found for the city ${city} from newsapi.org`
+              );
+            }
             setLoadingHeadline(false);
           })
           .catch((error) => {
@@ -88,7 +93,7 @@ function App() {
             setLoadingHeadline(false);
           });
       }
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(delayDebounceFn);
   }, [city]);
@@ -112,13 +117,13 @@ function App() {
 
         <div>
           <h3 className="text-lg font-semibold">Actionable Needs</h3>
-          <ul className="list-disc list-inside mt-2 text-sm">
-            {summaryResult.actionable_needs
-              .split("\n")
-              .map((item: string, index: number) => (
-                <li key={index}>{item}</li>
-              ))}
-          </ul>
+          {/* <ul className="list-disc list-inside mt-2 text-sm"> */}
+          {summaryResult.actionable_needs
+            .split("\n")
+            .map((item: string, index: number) => (
+              <p key={index}>{item}</p>
+            ))}
+          {/* </ul> */}
         </div>
       </div>
     );
@@ -163,45 +168,63 @@ function App() {
                 type="text"
                 id="cityInput"
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
+                onChange={(e) => {
+                  setCity(e.target.value);
+                  setRedditList([]);
+                  setSummaryResult({
+                    actionable_needs: "",
+                    sentiment: "",
+                    summary: "",
+                  });
+                }}
                 className="rounded-lg border px-2 py-2 mt-2 shadow-sm outline-none focus:ring"
               />
               {loadingHeadline ? (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-4 h-4 border-t-2 border-blue-700 rounded-full animate-spin"></div>
                 </div>
-              ) : (
-                newsList.length > 0 && (
-                  <div className="flex flex-col">
-                    <label
-                      className="mb-1 my-4 font-semibold text-gray-500"
-                      htmlFor="newsSelect"
-                    >
-                      Select Headline
-                    </label>
-                    <select
-                      id="newsSelect"
-                      className="rounded-lg border px-2 py-2 mt-2 shadow-sm outline-none focus:ring"
-                      value={selectedNews}
-                      onChange={(e) => setSelectedNews(e.target.value)}
-                    >
-                      {newsList.map((news, index) => (
-                        <option key={index} value={news}>
-                          {news}
-                        </option>
-                      ))}
-                    </select>
+              ) : newsList.length > 0 ? (
+                <div className="flex flex-col">
+                  <label
+                    className="mb-1 my-4 font-semibold text-gray-500"
+                    htmlFor="newsSelect"
+                  >
+                    Select Headline
+                  </label>
+                  <select
+                    id="newsSelect"
+                    className="rounded-lg border px-2 py-2 mt-2 shadow-sm outline-none focus:ring"
+                    value={selectedNews}
+                    onChange={(e) => {
+                      setSelectedNews(e.target.value);
+                      setRedditList([]);
+                      setSummaryResult({
+                        actionable_needs: "",
+                        sentiment: "",
+                        summary: "",
+                      });
+                    }}
+                  >
+                    {newsList.map((news, index) => (
+                      <option key={index} value={news}>
+                        {news}
+                      </option>
+                    ))}
+                  </select>
 
-                    <div className="flex flex-col justify-between sm:flex-row">
-                      <button
-                        className="group my-6 flex w-full items-center justify-center rounded-lg bg-blue-700 py-2 text-center font-bold text-white outline-none transition sm:order-1 sm:w-40 focus:ring"
-                        onClick={handleFetchComments}
-                      >
-                        Continue
-                      </button>
-                    </div>
+                  <div className="flex flex-col justify-between sm:flex-row">
+                    <button
+                      className="group my-6 flex w-full items-center justify-center rounded-lg bg-blue-700 py-2 text-center font-bold text-white outline-none transition sm:order-1 sm:w-40 focus:ring"
+                      onClick={handleFetchComments}
+                    >
+                      Continue
+                    </button>
                   </div>
-                )
+                </div>
+              ) : (
+                <h1 className="my-4 mx-2 text-red-500 font-semibold">
+                  {inputErrorMsg}
+                </h1>
               )}
             </div>
           </div>
@@ -225,7 +248,9 @@ function App() {
                         <div className="mb-2 flex flex-col justify-between text-gray-600 sm:flex-row"></div>
                         <h2 className="font-medium">{comment.Subreddit}</h2>
                         <h3 className="font-medium">{comment.PostTitle}</h3>
-                        <p className="text-sm mb-2">{comment.CommentBody}</p>
+                        <p className="text-sm mb-2 text-red-700">
+                          {comment.CommentBody}
+                        </p>
                         <div className="flex items-center justify-between text-gray-600">
                           <p className="text-xs">{comment.PostAge} days ago</p>
                           <h3 className="font-medium">{comment.Author}</h3>
