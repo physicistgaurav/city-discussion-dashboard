@@ -45,7 +45,7 @@ function App() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ topic: newsTitle }),
+      body: JSON.stringify({ topic: newsTitle, city: city }),
     })
       .then((response) => response.json())
       .then((data) => {
