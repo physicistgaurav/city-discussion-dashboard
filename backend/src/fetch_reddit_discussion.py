@@ -86,36 +86,40 @@ Please generate a JSON object with a single field named "query". The value of th
 
 
 def fetch_comments_from_reddit(subreddit, search_query, sort, limit, max_age, current_time):
-    comments_data = []
-    reddit_search = subreddit.search(search_query, sort=sort, limit=limit)
-    for submission in reddit_search:
-        post_title = submission.title
-        post_id = submission.id
+    try:
+        comments_data = []
+        reddit_search = subreddit.search(search_query, sort=sort, limit=limit)
+        for submission in reddit_search:
+            post_title = submission.title
+            post_id = submission.id
 
-        post_time = datetime.fromtimestamp(submission.created_utc)
-        post_age = current_time - post_time
+            post_time = datetime.fromtimestamp(submission.created_utc)
+            post_age = current_time - post_time
 
-        if post_age > max_age:
-            continue
+            if post_age > max_age:
+                continue
 
-        reddit = configure_reddit_api()
+            reddit = configure_reddit_api()
 
-        submission = reddit.submission(id=post_id)
-        submission.comments.replace_more(limit=0)
+            submission = reddit.submission(id=post_id)
+            submission.comments.replace_more(limit=0)
 
-        for comment in submission.comments.list()[:5]:
-            comments_data.append({
-                'newsTopic': search_query.split()[0],  # Extracting the topic from the search query
-                'Subreddit': f"r/{submission.subreddit}",
-                'PostTitle': post_title,
-                'CommentBody': comment.body,
-                'Author': comment.author.name if comment.author else 'Unknown',
-                'Score': comment.score,
-                'PostAge': post_age.days,
-                'CommentAge': (current_time - datetime.fromtimestamp(comment.created_utc)).days
-            })
+            for comment in submission.comments.list()[:5]:
+                comments_data.append({
+                    'newsTopic': search_query.split()[0],  
+                    'Subreddit': f"r/{submission.subreddit}",
+                    'PostTitle': post_title,
+                    'CommentBody': comment.body,
+                    'Author': comment.author.name if comment.author else 'Unknown',
+                    'Score': comment.score,
+                    'PostAge': post_age.days,
+                    'CommentAge': (current_time - datetime.fromtimestamp(comment.created_utc)).days
+                })
 
-    return comments_data
+        return comments_data
+    except Exception as e:
+        print(f"Error fetching from reddit: {e}")
+    
 
 def fetch_comments_for_topic(topic, city_name, limit=5, max_age_days=45):
     try:
@@ -140,7 +144,7 @@ def fetch_comments_for_topic(topic, city_name, limit=5, max_age_days=45):
         comments_data.sort(key=lambda x: x['Score'], reverse=True)
         return comments_data[:limit]
     except Exception as e:
-        print(f"Error fetching comments: {e}")  # Log the error for debugging
+        print(f"Error fetching comments  i am hereee: {e}") 
         return []  # Return an empty list on failure
 
 def save_comments_to_file(comments, filename):

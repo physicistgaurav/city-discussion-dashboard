@@ -6,25 +6,28 @@ import requests
 # google/gemma-7b-it:free
 
 def call_openrouter_api(prompt, top_p = 1, temperature = 0, frequency_penalty = 0, presence_penalty =0):
-    response = requests.post(
-        url="https://openrouter.ai/api/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
-            "Content-Type": "application/json"
-        },
-        data=json.dumps({
-            "model": "microsoft/phi-3-mini-128k-instruct:free",
-            "messages": [
-                {"role": "user", "content": prompt}
-            ],
-            "top_p": top_p,
-            "temperature": temperature,   
-            "frequency_penalty": frequency_penalty,
-            "presence_penalty": presence_penalty,
-        })
-    )
-    return response.json()['choices'][0]['message']['content'].strip()
-
+    try:
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+                "Content-Type": "application/json"
+            },
+            data=json.dumps({
+                "model": "microsoft/phi-3-mini-128k-instruct:free",
+                "messages": [
+                    {"role": "user", "content": prompt}
+                ],
+                "top_p": top_p,
+                "temperature": temperature,   
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+            })
+        )
+        return response.json()['choices'][0]['message']['content'].strip()
+    except Exception as e:
+        print(f"Error fetching from openrouter: {e}")
+        
 # Function to summarize the overall discussion
 def summarize_discussion(discussions):
     combined_text = " ".join(discussions)
