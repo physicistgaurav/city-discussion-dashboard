@@ -36,7 +36,7 @@ def fetch_comments(request):
 
     try:
         comments = fetch_comments_for_topic(topic)
-        discussions = [comment['CommentBody'] for comment in comments]
+        discussions = [f"Main News Topic: {comment['newsTopic']} | Reddit-Post on this news: {comment['PostTitle']} | Comment on this post by people: {comment['CommentBody']}" for comment in comments]
         summary,sentiment, actionable_needs = getAnalyzedReport(discussions)
         data = {"comments": comments,
                 "summary": summary,

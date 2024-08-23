@@ -2,17 +2,27 @@ import os
 import json
 import requests
 
+# microsoft/phi-3-mini-128k-instruct:free
+# google/gemma-7b-it:free
+
 def call_openrouter_api(prompt):
     response = requests.post(
         url="https://openrouter.ai/api/v1/chat/completions",
         headers={
             "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+            "Content-Type": "application/json"
         },
         data=json.dumps({
-            "model": "mistralai/mistral-7b-instruct:free",
+            "model": "microsoft/phi-3-mini-128k-instruct:free",
             "messages": [
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            "top_p": 1,
+        "temperature": 0,  
+        "frequency_penalty": 0,
+        "presence_penalty": 0,
+        "repetition_penalty": 1,
+        "top_k": 0,
         })
     )
     return response.json()['choices'][0]['message']['content'].strip()
@@ -21,7 +31,7 @@ def call_openrouter_api(prompt):
 def summarize_discussion(discussions):
     combined_text = " ".join(discussions)
     prompt = (
-        "Summarize the following discussions in 2-3 sentences, focusing on the main highlights and key concerns: "
+        "Summarize the key themes, arguments, or points from the following discussion in 2-3 sentences. Focus only on relevant and on-topic information while ignoring unrelated or humorous remarks. For example, if the discussion is about a logistics challenge, prioritize comments that discuss the challenge itself, such as 'It was difficult to transport due to narrow roads.' Ignore off-topic comments like jokes ('This reminds me of a scene from a movie!') or pop culture references ('This looks like something from Fast & Furious.'). Here's the discussion: "
         f"{combined_text}"
     )
     return call_openrouter_api(prompt)
@@ -30,7 +40,7 @@ def summarize_discussion(discussions):
 def analyze_sentiment(discussions):
     combined_text = " ".join(discussions)
     prompt = (
-        "Analyze the sentiment of the following discussions in one sentence. Indicate whether it is positive, negative, or neutral: "
+        "Analyze the sentiment of the following discussion, classifying it as positive, neutral, or negative. Focus on comments relevant to the primary topic, and provide a brief reasoning for your classification. For example, if the discussion is generally supportive, like 'This process was well executed,' the sentiment is positive. Exclude any irrelevant jokes ('This sounds like a comedy sketch') or unrelated cultural references ('This could be in a superhero movie'). Here's the discussion: "
         f"{combined_text}"
     )
     return call_openrouter_api(prompt)
@@ -39,12 +49,12 @@ def analyze_sentiment(discussions):
 def identify_actionable_needs(discussions):
     combined_text = " ".join(discussions)
     prompt = (
-        "Identify actionable needs from the following discussions in a list of 2-3 key points: "
+        "Review the following discussion and identify any actionable needs, concerns, or relevant suggestions. Focus on comments directly related to the topic and that point out issues or recommendations, such as 'The equipment should be tested more thoroughly next time.' Ignore irrelevant or humorous comments like jokes ('Someone should turn this into a meme!') or unrelated pop culture references ('This is straight out of a sci-fi movie.'). Here's the discussion: "
         f"{combined_text}"
     )
     return call_openrouter_api(prompt)
 
-# Function to identify actionable needs from the discussion
+# Function to get summary, sentiment and actionable needs
 def getAnalyzedReport(discussions):
     summary = summarize_discussion(discussions)
     sentiment = analyze_sentiment(discussions)
@@ -74,7 +84,8 @@ def main():
         
         if os.path.exists(filename):
             with open(filename) as f:
-                discussions = [comment['CommentBody'] for comment in json.load(f)]
+                comments = json.load(f)
+                discussions = [f"Main News Topic: {comment['newsTopic']} | Reddit-Post on this news: {comment['PostTitle']} | Comment on this post by people: {comment['CommentBody']}" for comment in comments]
             
             # Perform the analyses
             summary,sentiment, actionable_needs = getAnalyzedReport(discussions)
