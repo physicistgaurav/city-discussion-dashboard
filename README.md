@@ -141,6 +141,20 @@ This will start the backend server on localhost port 8000
 
 Note: Please update your environment variables before using the APIs.
 
+## Test Cases
+
+Test cases are written using unitest.
+
+```bash
+python3 -m unittest backend.tests.test_fetch_news_topic
+python3 -m unittest backend.tests.test_fetch_reddit_discussion
+python3 -m unittest backend.tests.test_analyze_gathered_info
+```
+
+This will start the backend server on localhost port 8000
+
+Note: Please update your environment variables before using the APIs.
+
 ## File Structure
 
     backend/: This directory is used to store all the backend part in one place
@@ -174,11 +188,3 @@ Note: Please update your environment variables before using the APIs.
     3. Run the scripts as mentioned in Running the Script to get the output data
 
     4.Run the Frontend server followed by Backend server if youu want to see on web.
-
-```
-
-```
-
-```
-
-```
