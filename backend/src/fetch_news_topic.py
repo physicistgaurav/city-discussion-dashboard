@@ -1,19 +1,20 @@
 import requests
 import os
 import json
+from datetime import datetime, timedelta
 
 def fetch_top_news_topic(city_name ):
 
     api_key = os.getenv('NEWS_API_KEY')
     if not api_key:
         raise Exception("API key not found. Please set the NEWS_API_KEY environment variable.")
-    
-
     query_params = {
-        "sortBy": "top",
+        "sortBy": "relevancy",
         "q": city_name,
-        "apiKey": api_key
+        "apiKey": api_key,
+        "language": "en",
     }
+
     api_url = "https://newsapi.org/v2/everything"
     
     response = requests.get(api_url, params=query_params)
