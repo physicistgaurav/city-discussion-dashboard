@@ -29,13 +29,17 @@ def fetch_news(request):
 @api_view(["POST"])
 def fetch_comments(request):
     topic = request.data.get('topic')
+    city = request.data.get('city')
 
 
     if not topic:
         return Response({"error": "Topic is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if not city:
+        return Response({"error": "city is required"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        comments = fetch_comments_for_topic(topic)
+        comments = fetch_comments_for_topic(topic, city)
         discussions = [f"Main News Topic: {comment['newsTopic']} | Reddit-Post on this news: {comment['PostTitle']} | Comment on this post by people: {comment['CommentBody']}" for comment in comments]
         summary,sentiment, actionable_needs = getAnalyzedReport(discussions)
         data = {"comments": comments,

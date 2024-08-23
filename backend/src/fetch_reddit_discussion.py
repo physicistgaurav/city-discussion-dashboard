@@ -87,7 +87,7 @@ Please generate a JSON object with a single field named "query". The value of th
         raise RuntimeError(f"API call failed with status code {response.status_code}: {response.text}")
 
 
-def fetch_comments_for_topic(topic, subreddits=['all'], limit=5, max_age_days=45):
+def fetch_comments_for_topic(topic, city_name, subreddits=['all'], limit=5, max_age_days=45):
     
     reddit = configure_reddit_api()
 
@@ -100,6 +100,8 @@ def fetch_comments_for_topic(topic, subreddits=['all'], limit=5, max_age_days=45
 
         #  opernrouter to get search query
         search_query = generate_search_prompt(topic)  
+
+        search_query = f"{city_name} {generate_search_prompt(topic)}"
 
         reddit_search = subreddit.search(search_query, sort='hot', limit=limit)
         for submission in reddit_search:
@@ -137,11 +139,16 @@ def save_comments_to_file(comments, filename):
         json.dump(comments, f, indent=4)
 
 def main():
-    with open('data/topics.json') as f:
+
+    file_path = 'data/topics.json'
+
+    city_name = os.path.basename(file_path).replace('.json', '')
+
+    with open(file_path) as f:
         topics = json.load(f)
     
     for topic in topics:
-        comments = fetch_comments_for_topic(topic)
+        comments = fetch_comments_for_topic(topic, city_name)
         save_comments_to_file(comments, f'data/reddit/{topic.replace(" ", "_")}_comments.csv')
         print(f"Saved comments for topic '{topic}' to data/{topic.replace(' ', '_')}_comments.csv")
 

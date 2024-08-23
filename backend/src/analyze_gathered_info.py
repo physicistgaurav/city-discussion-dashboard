@@ -18,11 +18,11 @@ def call_openrouter_api(prompt):
                 {"role": "user", "content": prompt}
             ],
             "top_p": 1,
-        "temperature": 0,  
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
-        "repetition_penalty": 1,
-        "top_k": 0,
+            "temperature": 0,   
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "repetition_penalty": 1,
+            "top_k": 0,
         })
     )
     return response.json()['choices'][0]['message']['content'].strip()

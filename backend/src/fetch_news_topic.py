@@ -27,7 +27,9 @@ def fetch_top_news_topic(city_name ):
     else:
         raise Exception("Failed to fetch news topics")
 
-def save_topics_to_file(topics, filename):
+def save_topics_to_file(topics, city_name):
+    sanitized_city_name = city_name.replace(" ", "_").lower()
+    filename = f"data/{sanitized_city_name}.json"
     with open(filename, 'w') as f:
         json.dump(topics, f, indent=4)
 
@@ -36,7 +38,7 @@ if __name__ == "__main__":
     city = input("Enter the name of the city: ")
     try:
         top_news = fetch_top_news_topic(city)
-        save_topics_to_file(top_news, 'data/topics.json')
+        save_topics_to_file(top_news, city)
         print(f"Top 5 news topics in {city}:")
         for index, headline in enumerate(top_news, start=1):
             print(f"{index}. {headline}")
