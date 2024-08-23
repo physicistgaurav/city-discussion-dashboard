@@ -117,28 +117,31 @@ def fetch_comments_from_reddit(subreddit, search_query, sort, limit, max_age, cu
 
     return comments_data
 
-def fetch_comments_for_topic(topic, city_name, subreddits=['all'], limit=5, max_age_days=45):
-    
-    reddit = configure_reddit_api()
-    current_time = datetime.now()
-    max_age = timedelta(days=max_age_days)
-    search_query = f"{generate_search_prompt(topic)} {city_name}"
+def fetch_comments_for_topic(topic, city_name, limit=5, max_age_days=45):
+    try:
+        reddit = configure_reddit_api()
+        current_time = datetime.now()
+        max_age = timedelta(days=max_age_days)
+        search_query = f"{generate_search_prompt(topic)} {city_name}"
 
-    comments_data = []
+        comments_data = []
 
-    for subreddit_name in subreddits:
+        subreddit_name = "all"
         subreddit = reddit.subreddit(subreddit_name)
-        
+
         # First try with relevance
         comments_data = fetch_comments_from_reddit(subreddit, search_query, 'relevance', limit, max_age, current_time)
         
         # If no relevant comments are found, try with hot
         if not comments_data:
             comments_data = fetch_comments_from_reddit(subreddit, search_query, 'hot', limit, max_age, current_time)
-    
-    # Sort comments by score and return the top comments
-    comments_data.sort(key=lambda x: x['Score'], reverse=True)
-    return comments_data[:limit]
+        
+        # Sort comments by score and return the top comments
+        comments_data.sort(key=lambda x: x['Score'], reverse=True)
+        return comments_data[:limit]
+    except Exception as e:
+        print(f"Error fetching comments: {e}")  # Log the error for debugging
+        return []  # Return an empty list on failure
 
 def save_comments_to_file(comments, filename):
     with open(filename, 'w') as f:
