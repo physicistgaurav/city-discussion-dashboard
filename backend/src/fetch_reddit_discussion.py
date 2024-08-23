@@ -39,7 +39,7 @@ def configure_reddit_api():
     
 #     return ' '.join(keywords)
 
-
+# rated #2 in translation
 def generate_search_prompt(topic, model="openai/gpt-4o-mini-2024-07-18"):
     prompt = f"""
 Please generate a JSON object with a single field named "query". The value of this field should be a concise and effective search query for the topic '{topic}' to use on Reddit. Return only the JSON object without any additional text, explanations, or formatting. The output should look exactly like this: 
@@ -64,8 +64,6 @@ Please generate a JSON object with a single field named "query". The value of th
         "temperature": 0,
         "frequency_penalty": 0,
         "presence_penalty": 0,
-        "repetition_penalty": 1,
-        "top_k": 0,
     }
 
     response = requests.post(
