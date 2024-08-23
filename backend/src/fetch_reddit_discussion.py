@@ -40,7 +40,7 @@ def configure_reddit_api():
 #     return ' '.join(keywords)
 
 
-def generate_search_prompt(topic, model="meta-llama/llama-3-8b-instruct:free"):
+def generate_search_prompt(topic, model="openai/gpt-4o-mini-2024-07-18"):
     prompt = f"""
 Please generate a JSON object with a single field named "query". The value of this field should be a concise and effective search query for the topic '{topic}' to use on Reddit. Return only the JSON object without any additional text, explanations, or formatting. The output should look exactly like this: 
 {{ "query": "your search query here" }}
@@ -101,9 +101,9 @@ def fetch_comments_for_topic(topic, city_name, subreddits=['all'], limit=5, max_
         #  opernrouter to get search query
         search_query = generate_search_prompt(topic)  
 
-        search_query = f"{city_name} {generate_search_prompt(topic)}"
+        search_query = f"{generate_search_prompt(topic)}{" "}{city_name}"
 
-        reddit_search = subreddit.search(search_query, sort='hot', limit=limit)
+        reddit_search = subreddit.search(search_query, sort='relevance', limit=limit)
         for submission in reddit_search:
             post_title = submission.title
             post_id = submission.id
@@ -140,7 +140,7 @@ def save_comments_to_file(comments, filename):
 
 def main():
 
-    file_path = 'data/topics.json'
+    file_path = 'data/kathmandu.json'
 
     city_name = os.path.basename(file_path).replace('.json', '')
 
